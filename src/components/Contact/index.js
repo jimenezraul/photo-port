@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { validateEmail } from "../../utils/helpers";
 
 function ContactForm() {
+  const [errorMessage, setErrorMessage] = useState("");
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -9,9 +11,24 @@ function ContactForm() {
   const { name, email, message } = formState;
 
   function handleChange(e) {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
+    if (e.target.name === "email") {
+      const isValid = validateEmail(e.target.value);
+      // isValid conditional statement
+      if (!isValid) {
+        setErrorMessage("Your email is invalid.");
+      } else {
+        if (!e.target.value.length) {
+          setErrorMessage(`${e.target.name} is required.`);
+        } else {
+          setErrorMessage("");
+        }
+      }
+    }
+    if (!errorMessage) {
+      setFormState({ ...formState, [e.target.name]: e.target.value });
+    }
   }
-
+  console.log(errorMessage);
   function handleSubmit(e) {
     e.preventDefault();
     console.log(formState);
@@ -25,7 +42,7 @@ function ContactForm() {
           <input
             type="text"
             defaultValue={name}
-            onChange={handleChange}
+            onBlur={handleChange}
             name="name"
           />
         </div>
@@ -34,7 +51,7 @@ function ContactForm() {
           <input
             type="email"
             defaultValue={email}
-            onChange={handleChange}
+            onBlur={handleChange}
             name="email"
           />
         </div>
@@ -43,10 +60,15 @@ function ContactForm() {
           <textarea
             name="message"
             defaultValue={message}
-            onChange={handleChange}
+            onBlur={handleChange}
             rows="5"
           />
         </div>
+        {errorMessage && (
+          <div>
+            <p className="error-text">{errorMessage}</p>
+          </div>
+        )}
         <button type="submit">Submit</button>
       </form>
     </section>
